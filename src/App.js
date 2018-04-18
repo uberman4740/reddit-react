@@ -5,6 +5,8 @@ import {createStore} from 'redux'
 
 
 const initialState = {
+    activePostId: "8xf0y6ziyjabvozdd253nd",
+
     posts: {
         byId: {
             "8xf0y6ziyjabvozdd253nd": {
@@ -77,15 +79,20 @@ const initialState = {
         allIds: ["thingtwo", "thingone"]
     }
 }
-function reducer(state=initialState,action){
-    // switch(action.type){
-    //     case 'DELETE_COMMENT': {
-    //         state =
-    //     }
-    // }
+
+function reducer(state = initialState, action) {
+    switch(action.type){
+        case 'OPEN_POST': {
+            return{
+                ...state,
+                activePostId:action.id
+            }
+        }
+    }
 
     return state
 }
+
 const store = createStore(reducer, initialState)
 
 
@@ -99,11 +106,19 @@ class App extends Component {
     render() {
         const state = store.getState()
         const comments = []
-        for (let key in state.comments.byId){
-            console.log(state.comments.byId[key])
-            comments.push( state.comments.byId[key] );
+        for (let key in state.comments.byId) {
+            // console.log(state.comments.byId[key])
+            comments.push(state.comments.byId[key]);
 
         }
+        // console.log(comments)
+
+        const posts = []
+        for (let key in state.posts.byId) {
+            posts.push(state.posts.byId[key])
+        }
+        const activePostId = state.activePostId
+        const activePost = posts.find((p) => p.id === activePostId)
         // const comments = commentsArr.map(c=>(
         //     {
         //         id:c.id,
@@ -116,49 +131,112 @@ class App extends Component {
         //         parentDeleted:c.parentDeleted
         //     }
         // ))
-        console.log(comments)
+        const postsList = posts.map(post => (
+            {
+                id: post.id,
+                title: post.title,
+                active: post.id === activePostId
+
+            }
+        ))
 
 
-
-        return(
+        return (
             <div>
-                <CommentsView comments = {comments}/>
+                <PostsList postsList={postsList}/>
+                <Post post={activePost}/>
+
             </div>
         )
 
     }
 
 }
+class PostsList extends Component{
+    handleClick=(id)=>{
+        store.dispatch({
+            type:'OPEN_POST',
+            id: id
+        })
+    }
 
-class CommentsView extends Component{
+
+    render(){
+        const postsList = this.props.postsList.map((post,index)=>(
+            <div
+                key={index}
+                onClick={()=>this.handleClick(post.id)}
+            >
+                {post.title}
+            </div>
+        ))
+        return(
+            <div>
+                {postsList}
+
+            </div>
+        )
+    }
+}
+
+class Post extends Component {
+
+
+    render() {
+
+        const commentsArr = this.props.post.comments
+        console.log(commentsArr)
+        const commentsId = commentsArr.map(cId => (
+            <div>{cId}</div>
+
+        ))
+
+
+        return (
+            <div>
+                <div>
+                    {this.props.post.title}
+                </div>
+                <div>
+                    {commentsId}
+
+                </div>
+
+            </div>
+        )
+    }
+}
+
+class CommentsView extends Component {
     // App (comments)
-    handleClickDelete(id){
+    handleClickDelete(id) {
         store.dispatch({
             type: 'DELETE_COMMENT',
             id: id
         })
     }
-    render(){
+
+    render() {
         console.log(typeof this.props.comments)
-        const comments = this.props.comments.map((comment, index)=>(
+        const comments = this.props.comments.map((comment, index) => (
             <div
                 key={index}
 
 
             >
                 {/*<button*/}
-                    {/*onClick={()=>this.handleClickDelete(comment.id)}*/}
+                {/*onClick={()=>this.handleClickDelete(comment.id)}*/}
                 {/*></button>*/}
                 _BODY_
                 {comment.body}
                 <span>
-                    _AUTHOR_
+        _AUTHOR_
                     {comment.author}
-                    </span>
+        </span>
 
             </div>
         ))
-        return(
+        return (
             <div>
                 {comments}
             </div>
