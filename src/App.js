@@ -80,17 +80,36 @@ const initialState = {
     }
 }
 
-function reducer(state = initialState, action) {
-    switch(action.type){
-        case 'OPEN_POST': {
-            return{
-                ...state,
-                activePostId:action.id
-            }
-        }
-    }
+// function reducer(state, action) {
+//     switch(action.type){
+//         case 'OPEN_POST': {
+//             return{
+//                 ...state,
+//                 activePostId:action.id
+//             }
+//         }
+//     }
+//
+//     return state
+// }
+function reducer(state,action){
+    return {
+        activePostId: activePostIdReducer(state.activePostId,action),
+        posts: postsReducer(state.posts,action)
 
+    }
+}
+function postsReducer(state,action) {
     return state
+}
+function activePostIdReducer(state,action) {
+    if (action.type === "OPEN_POST"){
+        return action.id
+
+    }
+    else{
+        return state
+    }
 }
 
 const store = createStore(reducer, initialState)
@@ -105,19 +124,22 @@ class App extends Component {
 
     render() {
         const state = store.getState()
-        const comments = []
-        for (let key in state.comments.byId) {
-            // console.log(state.comments.byId[key])
-            comments.push(state.comments.byId[key]);
-
-        }
+        // const comments = []
+        // for (let key in state.comments.byId) {
+        //     // console.log(state.comments.byId[key])
+        //     comments.push(state.comments.byId[key]);
+        //
+        // }
         // console.log(comments)
-
+        console.log(state.posts)
         const posts = []
         for (let key in state.posts.byId) {
+            console.log(state.posts)
             posts.push(state.posts.byId[key])
         }
         const activePostId = state.activePostId
+        console.log(activePostId)
+        console.log(posts)
         const activePost = posts.find((p) => p.id === activePostId)
         // const comments = commentsArr.map(c=>(
         //     {
@@ -131,6 +153,7 @@ class App extends Component {
         //         parentDeleted:c.parentDeleted
         //     }
         // ))
+        console.log(activePost)
         const postsList = posts.map(post => (
             {
                 id: post.id,
@@ -139,6 +162,7 @@ class App extends Component {
 
             }
         ))
+        console.log(postsList)
 
 
         return (
