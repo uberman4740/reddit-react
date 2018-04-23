@@ -3,6 +3,8 @@ import logo from './logo.svg';
 import './App.css';
 import {createStore, combineReducers} from 'redux'
 
+const uuidv4 = require('uuid/v4');
+
 
 const initialState = {
     activePostId: "8xf0y6ziyjabvozdd253nd",
@@ -128,8 +130,63 @@ const initialState = {
     }
 }
 
+
 function reducer(state, action) {
-    return state
+    const posts = state.posts
+    if (action.type === 'ADD_POST') {
+        const newPost = {
+            id: action.id,
+            timestamp: Date.now(),
+            title: action.title,
+            body: 'PLACEHOLDER BODY',
+            author: 'PLACEHOLDER AUTHOR',
+            category: action.category,
+            voteScore: 0,
+            deleted: false,
+            comments: [],
+            commentCount: 0,
+
+        }
+
+        // postsByAllIds.concat(newPost.id)
+        console.log("PPPPPSPADFASFDSA")
+        console.log(action)
+        console.log(state)
+        console.log("ACCCC", state.categories.byId)
+
+        return {
+            ...state,
+            posts:{
+                ...state[posts],
+                allIds: state.posts.allIds.concat(action.id),
+                byId: {
+                    ...state.posts.byId,
+                    [action.id]: newPost
+                }
+            }
+        }
+    }
+    if (action.type === 'DELETE_POST'){
+        return{
+            ...state,
+            posts:{
+                ...state[posts],
+                byId:{
+                    ...state.posts.byId,
+                    [action.id]: {
+                        deleted: true
+                    }
+
+                },
+                allIds:state.posts.allIds
+            }
+        }
+    }
+
+    else {
+        return state
+    }
+
 }
 
 // function reducer(state, action) {
@@ -247,6 +304,8 @@ class App extends Component {
         // state.forEach((k,v)=>{
         //     console.log(k)
         // })
+        console.log("STTTATTEE", state)
+        console.log("ACCCC", state.categories.byId)
         for (let key in state.categories.byId) {
             // console.log(state.categories.byId[key])
             categories.push(state.categories.byId[key])
@@ -256,12 +315,12 @@ class App extends Component {
         console.log("print")
         console.log(activeCategory)
         const posts = []
-        for (let key in state.posts.byId){
+        for (let key in state.posts.byId) {
             posts.push(state.posts.byId[key])
         }
         console.log("posts", posts)
         console.log("activecategoryposts")
-        const activeCategoryPosts = posts.filter(p=>p.category === activeCategory.id)
+        const activeCategoryPosts = posts.filter(p => ((p.category === activeCategory.id) && (p.deleted === false) ) )
         console.table(activeCategoryPosts)
 
 
@@ -346,6 +405,8 @@ class CategoryTabs extends Component {
         //categoryTabs = {
         // title: c.name,
         // active: c.id === activeCategoryId}
+        const activeCategory = this.props.categoryTabs.filter(c => c.active === true)
+        console.log("Acctiveee", activeCategory)
 
         const categoryTabs = this.props.categoryTabs.map((tab, index) => (
             <div
@@ -361,8 +422,13 @@ class CategoryTabs extends Component {
 
         ))
         return (
-            <div className='ui top attached tabular menu'>
-                {categoryTabs}
+            <div>
+                <div className='ui top attached tabular menu'>
+                    {categoryTabs}
+                </div>
+                <div>
+                    <PostInput activeCategory={activeCategory}/>
+                </div>
             </div>
         )
     }
@@ -383,15 +449,70 @@ class Category extends Component {
     //     },
     //
     //     ]
+    handleClick = (id)=>{
+        store.dispatch({
+            type: 'DELETE_POST',
+            id: id
+        })
+    }
     render() {
-        const posts = this.props.category.map((post,index)=>(
-            <div key={index}>
+        const posts = this.props.category.map((post, index) => (
+            <div key={index}
+                 onClick={()=>this.handleClick(post.id)}
+            >
                 {post.title}
             </div>
         ))
-        return(
+        return (
             <div>
-                {posts}
+                <div>
+                    {posts}
+                </div>
+
+            </div>
+        )
+
+
+    }
+}
+
+class PostInput extends Component {
+    componentDidMount(){
+        console.log("PIII",this.props.activeCategory)
+    }
+    state = {value: ''}
+    onChange = (e) => {
+        this.setState({value: e.target.value})
+    }
+    handleSubmit = () => {
+        store.dispatch({
+            id: uuidv4(),
+            type: 'ADD_POST',
+            title: this.state.value,
+            category: 'redux'
+        })
+        console.log("in postinput", this.props.activeCategory.title)
+        this.setState({
+            value: ''
+        })
+
+    }
+
+    render() {
+
+
+        return (
+            <div className={'ui input'}>
+                <input onChange={this.onChange}
+                       value={this.state.value}
+                       type={'text'}
+                />
+                <button onClick={this.handleSubmit}
+                        type={'submit'}
+                        className={'ui primary button'}
+                >
+                    Add new post
+                </button>
             </div>
         )
 
