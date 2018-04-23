@@ -182,10 +182,18 @@ function reducer(state, action) {
             }
         }
     }
+    if (action.type === 'OPEN_CATEGORY'){
+        console.log("OPEN___-__________THREAD", action.id)
+        return{
+            ...state,
+            activeCategoryId: action.id
+        }
+    }
 
     else {
         return state
     }
+
 
 }
 
@@ -379,7 +387,8 @@ class App extends Component {
         const categoryTabs = categories.map(c => (
             {
                 title: c.name,
-                active: c.id === activeCategoryId
+                active: c.id === activeCategoryId,
+                id: c.id
 
             }
 
@@ -400,18 +409,27 @@ class App extends Component {
 }
 
 class CategoryTabs extends Component {
+    handleClick=(id)=>{
+        store.dispatch({
+            type:'OPEN_CATEGORY',
+            id:id
+        })
+
+    }
     render() {
         //PROPS
         //categoryTabs = {
         // title: c.name,
         // active: c.id === activeCategoryId}
+
         const activeCategory = this.props.categoryTabs.filter(c => c.active === true)
-        console.log("Acctiveee", activeCategory)
+        console.log("Acctiveee", activeCategory[0].id)
 
         const categoryTabs = this.props.categoryTabs.map((tab, index) => (
             <div
                 key={index}
                 className={tab.active ? 'active item' : 'item'}
+                onClick={()=>this.handleClick(tab.id)}
 
 
             >
@@ -427,7 +445,7 @@ class CategoryTabs extends Component {
                     {categoryTabs}
                 </div>
                 <div>
-                    <PostInput activeCategory={activeCategory}/>
+                    <PostInput activeCategory={activeCategory[0].id}/>
                 </div>
             </div>
         )
@@ -489,7 +507,7 @@ class PostInput extends Component {
             id: uuidv4(),
             type: 'ADD_POST',
             title: this.state.value,
-            category: 'redux'
+            category: this.props.activeCategory
         })
         console.log("in postinput", this.props.activeCategory.title)
         this.setState({
