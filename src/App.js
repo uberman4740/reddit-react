@@ -3,354 +3,19 @@ import logo from './logo.svg';
 import './App.css';
 import {createStore, combineReducers} from 'redux'
 import Modal from 'react-modal'
+import {postsReducer} from './reducers/posts'
+import {categoriesReducer} from "./reducers/categories";
+import activeCategoryIdReducer from "./reducers/activeCategory"
 
 const uuidv4 = require('uuid/v4');
 
+const reducer = combineReducers({
+    activeCategoryId: activeCategoryIdReducer,
+    posts: postsReducer,
+    categories:categoriesReducer
+})
 
-const initialState = {
-    activePostId: "8xf0y6ziyjabvozdd253nd",
-    activeCategoryId: "redux",
-    categories: {
-        byId: {
-            "react": {
-                id: "react",
-                name: "react",
-                path: "react"
-            },
-            "redux": {
-                id: "redux",
-                name: "redux",
-                path: "redux"
-            },
-            "work": {
-                id: "work",
-                name: "work",
-                path: "work"
-            },
-
-        },
-        allIds: ["react", "redux", "work"]
-    },
-
-    posts: {
-        byId: {
-            "8xf0y6ziyjabvozdd253nd": {
-                id: '8xf0y6ziyjabvozdd253nd',
-                timestamp: 1467166872634,
-                title: 'How hot is the sun?',
-                body: 'Everyone says so after all.',
-                author: 'thingtwo',
-                category: 'react',
-                voteScore: 6,
-                deleted: false,
-                comments: ["894tuq4ut84ut8v4t8wun89g", "8tu4bsun805n8un48ve89"],
-                commentCount: 2,
-
-            },
-
-            "6ni6ok3ym7mf1p33lnez": {
-                id: '6ni6ok3ym7mf1p33lnez',
-                timestamp: 1468479767190,
-                title: 'Learn Redux in 10 minutes!',
-                body: 'Just kidding. It takes more than 10 minutes to learn technology.',
-                author: 'thingone',
-                category: 'redux',
-                voteScore: -5,
-                deleted: false,
-                comments: [],
-                commentCount: 0,
-            },
-            "8xf0y6ziyjabvozdd253ne": {
-                id: '8xf0y6ziyjabvozdd253ne',
-                timestamp: 1467166872634,
-                title: 'How hot ?',
-                body: 'Everyone ',
-                author: 'thingtwo',
-                category: 'redux',
-                voteScore: 6,
-                deleted: false,
-                comments: ["894tuq4ut84ut8v4t8wun89e"],
-                commentCount: 2,
-
-            },
-        },
-
-        allIds: ["8xf0y6ziyjabvozdd253nd", "6ni6ok3ym7mf1p33lnez", "8xf0y6ziyjabvozdd253ne"]
-    },
-    comments: {
-        byId: {
-            "894tuq4ut84ut8v4t8wun89g": {
-                id: '894tuq4ut84ut8v4t8wun89g',
-                parentId: "8xf0y6ziyjabvozdd253nd",
-                timestamp: 1468166872634,
-                body: 'Hi there! I am a COMMENT.',
-                author: 'thingtwo',
-                voteScore: 6,
-                deleted: false,
-                parentDeleted: false
-            },
-            "8tu4bsun805n8un48ve89": {
-                id: '8tu4bsun805n8un48ve89',
-                parentId: "8xf0y6ziyjabvozdd253nd",
-                timestamp: 1469479767190,
-                body: 'Comments. Are. Cool.',
-                author: 'thingone',
-                voteScore: -5,
-                deleted: false,
-                parentDeleted: false
-            },
-            "894tuq4ut84ut8v4t8wun89e": {
-                id: '894tuq4ut84ut8v4t8wun89e',
-                parentId: "8xf0y6ziyjabvozdd253ne",
-                timestamp: 1469479767190,
-                body: 'Comments!.',
-                author: 'thingone',
-                voteScore: -5,
-                deleted: false,
-                parentDeleted: false
-            }
-
-
-        },
-        allIds: ["894tuq4ut84ut8v4t8wun89g", "8tu4bsun805n8un48ve89"]
-    },
-    authors: {
-        byId: {
-            "thingtwo": {
-                username: "thingtwo",
-
-            },
-            "thingone": {
-                username: "thingone",
-
-            },
-
-
-        },
-        allIds: ["thingtwo", "thingone"]
-    }
-}
-
-// function activeCategoryIdReducer(state,action){
-//     if(action.type === 'OPEN_CATEGORY'){
-//         return action.id
-//     }
-//     else{
-//         return state
-//     }
-// }
-// function addPostEntry(state,action){
-//     const post = {
-//         id: action.id,
-//         title: action.title,
-//         category: action.category,
-//         timestamp: Date.now(),
-//         body: 'PLACEHOLDER BODY',
-//         author: 'PLACEHOLDER AUTHOR',
-//         voteScore: 0,
-//         deleted: false,
-//         comments: [],
-//         commentCount: 0,
-//     }
-//     return {
-//         ...state,
-//         [action.id]: post
-//     }
-// }
-// function postsById(state,action){
-//     switch(action.type){
-//         case "ADD_POST": return addPostEntry(state,action)
-//         default: return state;
-//     }
-// }
-// function addPostId(state,action){
-//     return state.concat(action.id)
-// }
-//
-// function allPosts(state,action){
-//     switch(action.type){
-//         case "ADD_POST": return addPostId(state,action)
-//         default:return state
-//     }
-// }
-// function categoriesById(state,action){
-//     return state
-// }
-// function allCategories(state,action) {
-//     return state
-// }
-
-function reducer(state, action) {
-
-    // return{
-    //     activeCategoryId: activeCategoryIdReducer(state.activeCategoryId,action),
-    //     postsById: postsById(state.posts.byId,action),
-    //     allPosts: allPosts(state.posts.allIds,action),
-    //     categoriesById:categoriesById(state.categories.byId,action),
-    //     allCategories:allCategories(state.categories.allIds,action)
-    // }
-    const posts = state.posts
-    if (action.type === 'ADD_POST') {
-        const newPost = {
-            id: action.id,
-            timestamp: Date.now(),
-            title: action.title,
-            body: 'PLACEHOLDER BODY',
-            author: 'PLACEHOLDER AUTHOR',
-            category: action.category,
-            voteScore: 0,
-            deleted: false,
-            comments: [],
-            commentCount: 0,
-
-        }
-
-        // postsByAllIds.concat(newPost.id)
-        console.log("PPPPPSPADFASFDSA")
-        console.log(action)
-        console.log(state)
-        console.log("ACCCC", state.categories.byId)
-
-        return {
-            ...state,
-            posts: {
-                ...state[posts],
-                allIds: state.posts.allIds.concat(action.id),
-                byId: {
-                    ...state.posts.byId,
-                    [action.id]: newPost
-                }
-            }
-        }
-    }
-    if (action.type === 'DELETE_POST') {
-        return {
-            ...state,
-            posts: {
-                ...state[posts],
-                byId: {
-                    ...state.posts.byId,
-                    [action.id]: {
-                        deleted: true
-                    }
-
-                },
-                allIds: state.posts.allIds
-            }
-        }
-    }
-    if (action.type === 'OPEN_CATEGORY') {
-        console.log("OPEN___-__________THREAD", action.id)
-        return {
-            ...state,
-            activeCategoryId: action.id
-        }
-    }
-
-    else {
-        return state
-    }
-
-
-}
-
-// function reducer(state, action) {
-//     switch(action.type){
-//         case 'OPEN_POST': {
-//             return{
-//                 ...state,
-//                 activePostId:action.id
-//             }
-//         }
-//     }
-//
-//     return state
-// }
-// const reducer = combineReducers({
-//     activePostId: activePostIdReducer,
-//     posts: postsReducer,
-//     activeCategoryId: activeCategoryIdReducer,
-//     categories: categoryReducer
-// })
-//
-// function categoryReducer(state = {
-//     byId: {
-//         "react": {
-//             id: "react",
-//             name: "react",
-//             path: "react"
-//         },
-//         "redux": {
-//             id: "redux",
-//             name: "redux",
-//             path: "redux"
-//         },
-//         "work": {
-//             id: "work",
-//             name: "work",
-//             path: "work"
-//         },
-//
-//     },
-//     allIds: ["react", "redux", "work"]
-// }, action) {
-//     return state
-// }
-
-// function activeCategoryIdReducer(state="react",action){
-//     if (action.type =="OPEN_CATEGORY"){
-//         return action.id
-//     }
-//     else{
-//         return state
-//     }
-//
-// }
-
-// function postsReducer(state = {
-//     byId: {
-//         "8xf0y6ziyjabvozdd253nd": {
-//             id: '8xf0y6ziyjabvozdd253nd',
-//             timestamp: 1467166872634,
-//             title: 'How hot is the sun?',
-//             body: 'Everyone says so after all.',
-//             author: 'thingtwo',
-//             category: 'react',
-//             voteScore: 6,
-//             deleted: false,
-//             comments: ["894tuq4ut84ut8v4t8wun89g", "8tu4bsun805n8un48ve89"],
-//             commentCount: 2,
-//
-//         },
-//         "6ni6ok3ym7mf1p33lnez": {
-//             id: '6ni6ok3ym7mf1p33lnez',
-//             timestamp: 1468479767190,
-//             title: 'Learn Redux in 10 minutes!',
-//             body: 'Just kidding. It takes more than 10 minutes to learn technology.',
-//             author: 'thingone',
-//             category: 'redux',
-//             voteScore: -5,
-//             deleted: false,
-//             comments: [],
-//             commentCount: 0,
-//         }
-//     },
-//     allIds: ["8xf0y6ziyjabvozdd253nd", "6ni6ok3ym7mf1p33lnez"]
-// }, action) {
-//     return state
-// }
-
-// function activePostIdReducer(state = '8xf0y6ziyjabvozdd253nd', action) {
-//     if (action.type === "OPEN_POST") {
-//         return action.id
-//
-//     }
-//     else {
-//         return state
-//     }
-// }
-
-const store = createStore(reducer, initialState)
+const store = createStore(reducer)
 
 
 class App extends Component {
@@ -363,13 +28,16 @@ class App extends Component {
     render() {
 
         const state = store.getState()
+
         const activeCategoryId = state.activeCategoryId
+        console.log("activeCategoryId",activeCategoryId)
         const categories = []
         // console.log(Object.entries(state))
         // state.forEach((k,v)=>{
         //     console.log(k)
         // })
         console.log("STTTATTEE", state)
+        console.log("activecategoryId", state.activeCategoryId)
         console.log("ACCCC", state.categories.byId)
         for (let key in state.categories.byId) {
             // console.log(state.categories.byId[key])
@@ -422,7 +90,7 @@ class App extends Component {
         // console.log(posts)
         //
         //
-        // const activeCategoryPosts = posts.filter(p=>p.category===state.activeCategoryId)
+        // const activeCategoryPosts = posts.filter(p=>p.category===state.activeCategory.js)
         //
         // console.log("++")
         // console.log(activeCategoryPosts)
@@ -478,7 +146,7 @@ class CategoryTabs extends Component {
         //PROPS
         //categoryTabs = {
         // title: c.name,
-        // active: c.id === activeCategoryId}
+        // active: c.id === activeCategory.js}
 
         const activeCategory = this.props.categoryTabs.filter(c => c.active === true)
         console.log("Acctiveee", activeCategory[0].id)
@@ -569,11 +237,11 @@ class PostInput extends Component {
 
     }
 
-    handleOpenModal =()=> {
+    handleOpenModal = () => {
         this.setState({showModal: true})
     }
 
-    handleCloseModal=() =>{
+    handleCloseModal = () => {
         this.setState({showModal: false})
     }
 
@@ -603,7 +271,8 @@ class PostInput extends Component {
                 <button onClick={this.handleOpenModal}
                         className={'ui primary button'}
 
-                > Add New Post</button>
+                > Add New Post
+                </button>
                 <Modal
                     isOpen={this.state.showModal}
 
@@ -624,7 +293,6 @@ class PostInput extends Component {
                         </button>
                     </div>
                 </Modal>
-
 
 
             </div>
