@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
 import {createStore, combineReducers} from 'redux'
+import Modal from 'react-modal'
 
 const uuidv4 = require('uuid/v4');
 
@@ -130,8 +131,64 @@ const initialState = {
     }
 }
 
+// function activeCategoryIdReducer(state,action){
+//     if(action.type === 'OPEN_CATEGORY'){
+//         return action.id
+//     }
+//     else{
+//         return state
+//     }
+// }
+// function addPostEntry(state,action){
+//     const post = {
+//         id: action.id,
+//         title: action.title,
+//         category: action.category,
+//         timestamp: Date.now(),
+//         body: 'PLACEHOLDER BODY',
+//         author: 'PLACEHOLDER AUTHOR',
+//         voteScore: 0,
+//         deleted: false,
+//         comments: [],
+//         commentCount: 0,
+//     }
+//     return {
+//         ...state,
+//         [action.id]: post
+//     }
+// }
+// function postsById(state,action){
+//     switch(action.type){
+//         case "ADD_POST": return addPostEntry(state,action)
+//         default: return state;
+//     }
+// }
+// function addPostId(state,action){
+//     return state.concat(action.id)
+// }
+//
+// function allPosts(state,action){
+//     switch(action.type){
+//         case "ADD_POST": return addPostId(state,action)
+//         default:return state
+//     }
+// }
+// function categoriesById(state,action){
+//     return state
+// }
+// function allCategories(state,action) {
+//     return state
+// }
 
 function reducer(state, action) {
+
+    // return{
+    //     activeCategoryId: activeCategoryIdReducer(state.activeCategoryId,action),
+    //     postsById: postsById(state.posts.byId,action),
+    //     allPosts: allPosts(state.posts.allIds,action),
+    //     categoriesById:categoriesById(state.categories.byId,action),
+    //     allCategories:allCategories(state.categories.allIds,action)
+    // }
     const posts = state.posts
     if (action.type === 'ADD_POST') {
         const newPost = {
@@ -156,7 +213,7 @@ function reducer(state, action) {
 
         return {
             ...state,
-            posts:{
+            posts: {
                 ...state[posts],
                 allIds: state.posts.allIds.concat(action.id),
                 byId: {
@@ -166,25 +223,25 @@ function reducer(state, action) {
             }
         }
     }
-    if (action.type === 'DELETE_POST'){
-        return{
+    if (action.type === 'DELETE_POST') {
+        return {
             ...state,
-            posts:{
+            posts: {
                 ...state[posts],
-                byId:{
+                byId: {
                     ...state.posts.byId,
                     [action.id]: {
                         deleted: true
                     }
 
                 },
-                allIds:state.posts.allIds
+                allIds: state.posts.allIds
             }
         }
     }
-    if (action.type === 'OPEN_CATEGORY'){
+    if (action.type === 'OPEN_CATEGORY') {
         console.log("OPEN___-__________THREAD", action.id)
-        return{
+        return {
             ...state,
             activeCategoryId: action.id
         }
@@ -328,7 +385,7 @@ class App extends Component {
         }
         console.log("posts", posts)
         console.log("activecategoryposts")
-        const activeCategoryPosts = posts.filter(p => ((p.category === activeCategory.id) && (p.deleted === false) ) )
+        const activeCategoryPosts = posts.filter(p => ((p.category === activeCategory.id) && (p.deleted === false) ))
         console.table(activeCategoryPosts)
 
 
@@ -409,13 +466,14 @@ class App extends Component {
 }
 
 class CategoryTabs extends Component {
-    handleClick=(id)=>{
+    handleClick = (id) => {
         store.dispatch({
-            type:'OPEN_CATEGORY',
-            id:id
+            type: 'OPEN_CATEGORY',
+            id: id
         })
 
     }
+
     render() {
         //PROPS
         //categoryTabs = {
@@ -429,7 +487,7 @@ class CategoryTabs extends Component {
             <div
                 key={index}
                 className={tab.active ? 'active item' : 'item'}
-                onClick={()=>this.handleClick(tab.id)}
+                onClick={() => this.handleClick(tab.id)}
 
 
             >
@@ -467,16 +525,17 @@ class Category extends Component {
     //     },
     //
     //     ]
-    handleClick = (id)=>{
+    handleClick = (id) => {
         store.dispatch({
             type: 'DELETE_POST',
             id: id
         })
     }
+
     render() {
         const posts = this.props.category.map((post, index) => (
             <div key={index}
-                 onClick={()=>this.handleClick(post.id)}
+                 onClick={() => this.handleClick(post.id)}
             >
                 {post.title}
             </div>
@@ -495,10 +554,29 @@ class Category extends Component {
 }
 
 class PostInput extends Component {
-    componentDidMount(){
-        console.log("PIII",this.props.activeCategory)
+    // componentWillMount() {
+    //     Modal.setAppElement('body');
+    // }
+    componentDidMount() {
+        console.log("PIII", this.props.activeCategory)
+        // Modal.setAppElement('body');
+
     }
-    state = {value: ''}
+
+    state = {
+        value: '',
+        showModal: false
+
+    }
+
+    handleOpenModal =()=> {
+        this.setState({showModal: true})
+    }
+
+    handleCloseModal=() =>{
+        this.setState({showModal: false})
+    }
+
     onChange = (e) => {
         this.setState({value: e.target.value})
     }
@@ -511,7 +589,8 @@ class PostInput extends Component {
         })
         console.log("in postinput", this.props.activeCategory.title)
         this.setState({
-            value: ''
+            value: '',
+            showModal: false
         })
 
     }
@@ -520,18 +599,36 @@ class PostInput extends Component {
 
 
         return (
-            <div className={'ui input'}>
-                <input onChange={this.onChange}
-                       value={this.state.value}
-                       type={'text'}
-                />
-                <button onClick={this.handleSubmit}
-                        type={'submit'}
+            <div>
+                <button onClick={this.handleOpenModal}
                         className={'ui primary button'}
+
+                > Add New Post</button>
+                <Modal
+                    isOpen={this.state.showModal}
+
+                    contentLabel={"Minimal Modal Example"}
+                    onRequestClose={this.handleCloseModal}
+
                 >
-                    Add new post
-                </button>
+                    <div className={'ui input'}>
+                        <input onChange={this.onChange}
+                               value={this.state.value}
+                               type={'text'}
+                        />
+                        <button onClick={this.handleSubmit}
+                                type={'submit'}
+                                className={'ui primary button'}
+                        >
+                            Add new post
+                        </button>
+                    </div>
+                </Modal>
+
+
+
             </div>
+
         )
 
 
