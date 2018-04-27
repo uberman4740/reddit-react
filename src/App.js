@@ -3,68 +3,69 @@ import logo from './logo.svg';
 import './App.css';
 import {createStore, combineReducers} from 'redux'
 import Modal from 'react-modal'
-import {postsReducer} from './reducers/posts'
-import {categoriesReducer} from "./reducers/categories";
-import activeCategoryIdReducer from "./reducers/activeCategory"
+import {connect} from 'react-redux'
+
+// import {postsReducer} from './reducers/posts'
+// import {categoriesReducer} from "./reducers/categories";
+// import activeCategoryIdReducer from "./reducers/activeCategory"
 
 const uuidv4 = require('uuid/v4');
 
-const reducer = combineReducers({
-    activeCategoryId: activeCategoryIdReducer,
-    posts: postsReducer,
-    categories: categoriesReducer
-})
+// const reducer = combineReducers({
+//     activeCategoryId: activeCategoryIdReducer,
+//     posts: postsReducer,
+//     categories: categoriesReducer
+// })
 
-const store = createStore(reducer)
+// const store = createStore(reducer)
 
 
-
-const App = () =>(
+const App = () => (
     <div>
-        <CategoryTabs />
+        <CategoryTabs/>
         <CategoryDisplay/>
 
     </div>
 )
-class CategoryTabs extends Component {
-    componentDidMount() {
-        store.subscribe(() => this.forceUpdate())
-    }
-
-    render() {
-        const state = store.getState()
-        const categories = []
-        for (let key in state.categories.byId) {
-            // console.log(state.categories.byId[key])
-            categories.push(state.categories.byId[key])
-        }
-        const activeCategoryId = state.activeCategoryId
-        const categoryTabs = categories.map(c => (
-            {
-                title: c.name,
-                active: c.id === activeCategoryId,
-                id: c.id
-
-            }
-
-        ))
-        console.log("CT", categoryTabs)
-        return (
-            <div>
-
-                <Tabs
-                    tabs={categoryTabs}
-                    onClick={(id) => (store.dispatch({
-                        type: 'OPEN_CATEGORY',
-                        id: id
-                    }))}
-
-                />
-
-            </div>
-        )
-    }
-}
+// class CategoryTabs extends Component {
+//     componentDidMount() {
+//         store.subscribe(() => this.forceUpdate())
+//     }
+//
+//     render() {
+//         const state = store.getState()
+//         const categories = []
+//         for (let key in state.categories.byId) {
+//             // console.log(state.categories.byId[key])
+//             categories.push(state.categories.byId[key])
+//         }
+//         const activeCategoryId = state.activeCategoryId
+//         const categoryTabs = categories.map(c => (
+//             {
+//                 title: c.name,
+//                 active: c.id === activeCategoryId,
+//                 id: c.id
+//
+//             }
+//
+//         ))
+//         console.log("CT", categoryTabs)
+//         return (
+//             <div>
+//
+//                 <Tabs
+//                     tabs={categoryTabs}
+//                     onClick={(id) => (store.dispatch({
+//                         type: 'OPEN_CATEGORY',
+//                         id: id
+//                     }))}
+//
+//                 />
+//
+//             </div>
+//         )
+//     }
+// }
 
 const Tabs = (props) => (
     <div
@@ -86,78 +87,174 @@ const Tabs = (props) => (
 
 )
 
+const mapDispatchToTabsProps = (dispatch) => (
+    {
+        onClick: (id) => (
+            dispatch({
+                type: 'OPEN_CATEGORY',
+                id: id
+            })
+        )
+    }
+)
 
-class CategoryDisplay extends Component {
+const mapStateToTabsProps = (state) => {
+    const categories = []
+    for (let key in state.categories.byId) {
+        // console.log(state.categories.byId[key])
+        categories.push(state.categories.byId[key])
+    }
+    const activeCategoryId = state.activeCategoryId
+    const categoryTabs = categories.map(c => (
+        {
+            title: c.name,
+            active: c.id === activeCategoryId,
+            id: c.id
 
-    componentDidMount(){
-        store.subscribe(()=>this.forceUpdate())
+        }
+    ))
+    return {
+        tabs: categoryTabs
     }
 
+}
+const CategoryTabs = connect(
+    mapStateToTabsProps,
+    mapDispatchToTabsProps
+)(Tabs)
 
-    render() {
-        const state = store.getState()
+// class CategoryDisplay extends Component {
+//
+//     componentDidMount() {
+//         store.subscribe(() => this.forceUpdate())
+//     }
+//
+//
+//     render() {
+//         const state = store.getState()
+//
+//         const categories = []
+//         for (let key in state.categories.byId) {
+//             // console.log(state.categories.byId[key])
+//             categories.push(state.categories.byId[key])
+//         }
+//         const posts = []
+//         for (let key in state.posts.byId) {
+//             posts.push(state.posts.byId[key])
+//         }
+//
+//         const activeCategoryId = state.activeCategoryId
+//         const activeCategory = categories.find((t) => t.id === activeCategoryId)
+//         const activeCategoryPosts = posts.filter(p => ((p.category === activeCategory.id) && (p.deleted === false) ))
+//         console.log("acp: CatDisplay", activeCategoryPosts)
+//
+//         const categoryTabs = categories.map(c => (
+//             {
+//                 title: c.name,
+//                 active: c.id === activeCategoryId,
+//                 id: c.id
+//
+//             }
+//
+//         ))
+//         const activeCategor = categoryTabs.filter(c => c.active === true)
+//         // console.log("AC1", activeCategory[0].id)
+//         // console.log("AC2", activeCategory)
+//
+//
+//         return (
+//             <Category
+//                 onNewPostSubmit={(text) => (
+//                     store.dispatch({
+//                         type: 'ADD_POST',
+//                         id: uuidv4(),
+//                         title: text,
+//                         category: activeCategor[0].id
+//                     })
+//                 )}
+//                 posts={activeCategoryPosts}
+//                 onPostClick={(id) => (
+//                     store.dispatch({
+//                         type: 'DELETE_POST',
+//                         id: id
+//                     })
+//                 )}
+//
+//             />
+//
+//         )
+//
+//     }
+// }
 
-        const categories = []
-        for (let key in state.categories.byId) {
-            // console.log(state.categories.byId[key])
-            categories.push(state.categories.byId[key])
+const mapStateToCategoryProps = (state) => {
+    const categories = []
+    for (let key in state.categories.byId) {
+        // console.log(state.categories.byId[key])
+        categories.push(state.categories.byId[key])
+    }
+    const posts = []
+    for (let key in state.posts.byId) {
+        posts.push(state.posts.byId[key])
+    }
+
+    const activeCategoryId = state.activeCategoryId
+    const activeCategory = categories.find((t) => t.id === activeCategoryId)
+    const activeCategoryPosts = posts.filter(p => ((p.category === activeCategory.id) && (p.deleted === false) ))
+    console.log("acp: CatDisplay", activeCategoryPosts)
+
+    const categoryTabs = categories.map(c => (
+        {
+            title: c.name,
+            active: c.id === activeCategoryId,
+            id: c.id
+
         }
-        const posts = []
-        for (let key in state.posts.byId) {
-            posts.push(state.posts.byId[key])
-        }
 
-        const activeCategoryId = state.activeCategoryId
-        const activeCategory = categories.find((t) => t.id === activeCategoryId)
-        const activeCategoryPosts = posts.filter(p => ((p.category === activeCategory.id) && (p.deleted === false) ))
-        console.log("acp: CatDisplay", activeCategoryPosts)
-
-        const categoryTabs = categories.map(c => (
-            {
-                title: c.name,
-                active: c.id === activeCategoryId,
-                id: c.id
-
-            }
-
-        ))
-        const activeCategor = categoryTabs.filter(c => c.active === true)
-        // console.log("AC1", activeCategory[0].id)
-        // console.log("AC2", activeCategory)
-
-
-
-
-        return (
-            <Category
-                onNewPostSubmit={(text)=>(
-                    store.dispatch({
-                        type: 'ADD_POST',
-                        id: uuidv4(),
-                        title: text,
-                        category: activeCategor[0].id
-                    })
-                )}
-                posts = {activeCategoryPosts}
-                onPostClick={(id)=>(
-                    store.dispatch({
-                        type: 'DELETE_POST',
-                        id:id
-                    })
-                )}
-
-            />
-
-        )
+    ))
+    const activeCategor = categoryTabs.filter(c => c.active === true)
+    console.log(activeCategor[0].id)
+    return {
+        posts: activeCategoryPosts,
+        activeCategoryId: activeCategor[0].id
 
     }
 }
 
 
+const mapDispatchToCategoryProps = (dispatch) => (
+    {
+        onPostClick: (id) => (
+            dispatch({
+                type: 'DELETE_POST',
+                id: id
+            })
+        ),
+        dispatch:dispatch
+    }
+)
+
+const mergeCategoryProps = (stateProps, dispatchProps) =>(
+    {
+        ...stateProps,
+        ...dispatchProps,
+        onNewPostSubmit: (text)=>(
+            dispatchProps.dispatch({
+                type: 'ADD_POST',
+                id: uuidv4(),
+                title: text,
+                category: stateProps.activeCategoryId
+            })
+        )
+    }
+)
+
+
+
 const Category = (props) => (
     <div>
         <PostList
-            posts = {props.posts}
+            posts={props.posts}
             onClick={props.onPostClick}
 
         />
@@ -166,41 +263,51 @@ const Category = (props) => (
         />
     </div>
 )
+const CategoryDisplay = connect(
+    mapStateToCategoryProps,
+    mapDispatchToCategoryProps,
+    mergeCategoryProps
 
-class TextFieldSubmit extends Component{
-    componentDidMount(){
+)(Category)
+
+class TextFieldSubmit extends Component {
+    componentDidMount() {
         Modal.setAppElement('body');
     }
+
     state = {
-        value:'',
+        value: '',
         showModal: false
     }
-    handleOpenModal = ()=>{
-        this.setState({showModal:true})
+    handleOpenModal = () => {
+        this.setState({showModal: true})
     }
-    handleCloseModal = ()=>{
-        this.setState({showModal:false})
+    handleCloseModal = () => {
+        this.setState({showModal: false})
     }
-    onChange=(e)=>{
+    onChange = (e) => {
         this.setState({
             value: e.target.value
         })
     }
-    handleSubmit = ()=>{
+    handleSubmit = () => {
         this.props.onSubmit(this.state.value)
-        this.setState({value: '',
-                       showModal:false
+        this.setState({
+            value: '',
+            showModal: false
         })
     }
-    render(){
-        return(
+
+    render() {
+        return (
             <div>
                 <button
                     className={'ui primary button'}
                     onClick={this.handleOpenModal}
-                >Add New Post</button>
+                >Add New Post
+                </button>
                 <Modal
-                    isOpen = {this.state.showModal}
+                    isOpen={this.state.showModal}
                     onRequestClose={this.handleCloseModal}
                 >
                     <div
@@ -215,8 +322,9 @@ class TextFieldSubmit extends Component{
                         <button
                             onClick={this.handleSubmit}
                             className={'ui primary button'}
-                            type = 'submit'
-                        >Submit Post</button>
+                            type='submit'
+                        >Submit Post
+                        </button>
 
                     </div>
                 </Modal>
@@ -232,7 +340,7 @@ class TextFieldSubmit extends Component{
     }
 }
 
-const PostList = (props)=>(
+const PostList = (props) => (
     <div>{
         props.posts.map((post, index) => (
             <div key={index}
@@ -244,10 +352,8 @@ const PostList = (props)=>(
     }
 
 
-
     </div>
 )
-
 
 
 // class PostInput extends Component {
@@ -331,9 +437,6 @@ const PostList = (props)=>(
 //
 //     }
 // }
-
-
-
 
 
 // class CategoryList extends Component{
