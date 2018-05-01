@@ -1,0 +1,39 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": ["eslint:recommended","plugin:react/all","plugin:jsx-a11y/recommended","plugin:es-beautifier/standard"],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true,
+            "jsx": true
+        },
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react", "jsx-a11y","es-beautifier"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            "tab"
+        ],
+        "no-tabs": 0,
+        "react/prefer-stateless-function": [1, { "ignorePureComponents": true }],
+
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "semi": [
+            "error",
+            "never"
+        ]
+    }
+}
