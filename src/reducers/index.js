@@ -1,10 +1,14 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from "redux"
 
-import {postsReducer} from './posts'
-import {categoriesReducer} from "./categories";
-import activeCategoryIdReducer from "./activeCategory"
+import { postsReducer } from "./postsReducer"
+import { categoriesReducer } from "./categoriesReducer"
+import { activePostIdReducer } from "./activePostIdReducer"
+import activeCategoryIdReducer from "./activeCategoryReducer"
+import { commentsReducer } from "./commentsReducer"
 export default combineReducers({
-    activeCategoryId: activeCategoryIdReducer,
-    posts: postsReducer,
-    categories: categoriesReducer
+	activeCategoryId: activeCategoryIdReducer,
+	activePostId: activePostIdReducer,
+	posts: postsReducer,
+	categories: categoriesReducer,
+	comments: commentsReducer,
 })
