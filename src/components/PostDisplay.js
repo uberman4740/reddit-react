@@ -2,20 +2,16 @@ import React, { Component } from "react"
 import { connect } from "react-redux"
 import { CommentsDisplay, TextFieldComment } from "./CommentsDisplay"
 import { addComment,deleteComment } from "../actions/commentActions"
+import {AddComment} from "./AddComment";
 const uuidv4 = require("uuid/v4")
 
-//
-// class PostDisplay extends Component{
-//     render(){
-//         console.log("POSTS:", this.props.posts)
-//         return (
-//             <div>
-//                 hi
-//             </div>
-//         )
-//     }
-//
-// }
+// PostList  (posts)
+//  |
+// PostDisplay
+//  |
+// CommentDisplay (comments,onCommentDeleteClick)     AddComment | (onSubmit)
+
+
 const Post = props => (
 
 	<div className="ui segments">
@@ -47,7 +43,7 @@ const Post = props => (
 			comments={props.comments}
 			onCommentDeleteClick={props.onCommentDeleteClick}
 		/>
-		 <TextFieldComment onSubmit={props.onCommentAddClick}/>
+		 <AddComment onSubmit={props.onCommentAddClick}/>
 	</div>
 
 )
@@ -107,4 +103,3 @@ export const PostDisplay = connect(
 	mapDispatchToPostProps,
 	mergePostProps
 )(Post)
-export default PostDisplay
